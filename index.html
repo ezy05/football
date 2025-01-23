@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>AI Predictions Football-Bot</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="bets.html">Bets</a></li>
+            </ul>
+        </nav>
+    </header>
+    <img src="main.jpg" alt="poza" class="poza">
+    <div class="text">
+        <h1>AI Predictions Football-Bot</h1>
+    </div>
+    <div class="prediction-form">
+        <form id="matchForm">
+            <label for="league">Alege Liga:</label>
+            <select id="league" name="league" required>
+                <option value="">Selectează Liga</option>
+                <option value="premier-league">Premier League</option>
+                <option value="bundesliga">Bundesliga</option>
+                <option value="superliga-romania">Superliga României</option>
+                <option value="serie-a">Serie A Italia</option>
+                <option value="ligue-1">Ligue 1 Franța</option>
+                <option value="la-liga">La Liga Spania</option>
+            </select>
+
+            <label for="team1">Echipa 1:</label>
+            <select id="team1" name="team1" required>
+                <option value="">Selectează Echipa 1</option>
+            </select>
+
+            <label for="team2">Echipa 2:</label>
+            <select id="team2" name="team2" required>
+                <option value="">Selectează Echipa 2</option>
+            </select>
+
+            <button type="submit">Predict</button>
+        </form>
+        <div id="predictionResult"></div>
+    </div>
+
+    <script>
+        const teams = {
+            "premier-league": [
+                "Manchester City", "Arsenal", "Liverpool", "Aston Villa", "Chelsea",
+                "Tottenham Hotspur", "Manchester United", "Newcastle United", "West Ham United",
+                "Brighton & Hove Albion", "Brentford", "Crystal Palace", "Wolverhampton Wanderers",
+                "Fulham", "AFC Bournemouth", "Nottingham Forest", "Sheffield United", "Luton Town"
+            ],
+            "bundesliga": [
+                "Bayern Munchen", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "VfB Stuttgart",
+                "Eintracht Frankfurt", "Union Berlin", "Wolfsburg", "Borussia Monchengladbach", "Werder Bremen",
+                "Mainz 05", "Augsburg", "Hoffenheim", "Koln", "Bochum", "Darmstadt 98"
+            ],
+            "superliga-romania": [
+                "CFR Cluj", "FCSB", "Universitatea Craiova", "Sepsi Sfântu Gheorghe", "Rapid București",
+                "Farul Constanța", "Petrolul Ploiești", "UTA Arad", "FC Botoșani", "Hermannstadt",
+                "Gloria Buzau", "Universitatea Cluj", "Unirea Slobozia", "Dinamo București",
+                "Oțelul Galați", "Politehnica Iași"
+            ],
+            "serie-a": [
+                "Inter Milano", "AC Milan", "Juventus", "Napoli", "AS Roma", "Lazio", "Atalanta", "Fiorentina",
+                "Bologna", "Torino", "Monza", "Empoli", "Lecce", "Salernitana", "Verona", "Spezia", "Sampdoria"
+            ],
+            "ligue-1": [
+                "Paris Saint-Germain", "AS Monaco", "Lyon", "Marseille", "Lille", "Rennes", "Nice", "Lens",
+                "Toulouse", "Montpellier", "Strasbourg", "Nantes", "Clermont Foot", "Lorient", "Brest", "Reims",
+                "Metz", "Le Havre"
+            ],
+            "la-liga": [
+                "Real Madrid", "FC Barcelona", "Atletico Madrid", "Real Sociedad", "Real Betis", "Villarreal",
+                "Girona", "Sevilla", "Valencia", "Athletic Bilbao", "Osasuna", "Rayo Vallecano", "Almeria",
+                "Getafe", "Celta Vigo", "Mallorca", "Granada", "Las Palmas"
+            ]
+        };
+
+        // Predictii posibile
+        const predictions = ["1", "X", "2", "PSF1", "PSF2", "PSFX", "GG", "GGand3+", "GGor3+", "2+ goals"];
+
+        // Functie pentru a genera o predicție aleatorie
+        function generatePrediction() {
+            const randomIndex = Math.floor(Math.random() * predictions.length);
+            return predictions[randomIndex];
+        }
+
+        // La schimbarea ligii, actualizam echipele disponibile
+        document.getElementById('league').addEventListener('change', function() {
+            const league = this.value;
+            const team1Select = document.getElementById('team1');
+            const team2Select = document.getElementById('team2');
+
+            team1Select.innerHTML = '<option value="">Selectează Echipa 1</option>';
+            team2Select.innerHTML = '<option value="">Selectează Echipa 2</option>';
+
+            if (league && teams[league]) {
+                teams[league].forEach(team => {
+                    const option1 = document.createElement('option');
+                    option1.value = team;
+                    option1.textContent = team;
+                    team1Select.appendChild(option1);
+
+                    const option2 = document.createElement('option');
+                    option2.value = team;
+                    option2.textContent = team;
+                    team2Select.appendChild(option2);
+                });
+            }
+        });
+
+        // La trimiterea formularului, generăm și salvăm predicția
+        document.getElementById('matchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (team1 && team2 && team1 !== team2) {
+                // Cheia pentru stocarea predicției în localStorage
+                const predictionKey = `${team1}-${team2}`;
+
+                // Verificăm dacă există deja o predicție salvată pentru aceste echipe
+                let prediction = localStorage.getItem(predictionKey);
+
+                if (!prediction) {
+                    // Dacă nu există predicție salvată, generăm una și o salvăm
+                    prediction = generatePrediction();
+                    localStorage.setItem(predictionKey, prediction);
+                }
+
+                // Afișăm predicția
+                document.getElementById('predictionResult').textContent = 
+                    `Predicție: ${team1} vs ${team2} - ${prediction}`;
+            } else {
+                document.getElementById('predictionResult').textContent = 
+                    "Selectați echipe diferite!";
+            }
+        });
+    </script>
+</body>
+</html>
