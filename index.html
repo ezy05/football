@@ -10,7 +10,7 @@
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="bets.html">Bets</a></li>
             </ul>
         </nav>
@@ -47,51 +47,56 @@
         <div id="predictionResult"></div>
     </div>
 
+    <div class="history">
+        <h2>Ultimele 5 Predicții</h2>
+        <ul id="historyList"></ul>
+        <button id="clearHistory">Șterge Istoricul</button>
+    </div>
+
     <script>
         const teams = {
-            "premier-league": [
-                "Manchester City", "Arsenal", "Liverpool", "Aston Villa", "Chelsea",
-                "Tottenham Hotspur", "Manchester United", "Newcastle United", "West Ham United",
-                "Brighton & Hove Albion", "Brentford", "Crystal Palace", "Wolverhampton Wanderers",
-                "Fulham", "AFC Bournemouth", "Nottingham Forest", "Sheffield United", "Luton Town"
-            ],
-            "bundesliga": [
-                "Bayern Munchen", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "VfB Stuttgart",
-                "Eintracht Frankfurt", "Union Berlin", "Wolfsburg", "Borussia Monchengladbach", "Werder Bremen",
-                "Mainz 05", "Augsburg", "Hoffenheim", "Koln", "Bochum", "Darmstadt 98"
-            ],
-            "superliga-romania": [
-                "CFR Cluj", "FCSB", "Universitatea Craiova", "Sepsi Sfântu Gheorghe", "Rapid București",
-                "Farul Constanța", "Petrolul Ploiești", "UTA Arad", "FC Botoșani", "Hermannstadt",
-                "Gloria Buzau", "Universitatea Cluj", "Unirea Slobozia", "Dinamo București",
-                "Oțelul Galați", "Politehnica Iași"
-            ],
-            "serie-a": [
-                "Inter Milano", "AC Milan", "Juventus", "Napoli", "AS Roma", "Lazio", "Atalanta", "Fiorentina",
-                "Bologna", "Torino", "Monza", "Empoli", "Lecce", "Salernitana", "Verona", "Spezia", "Sampdoria"
-            ],
-            "ligue-1": [
-                "Paris Saint-Germain", "AS Monaco", "Lyon", "Marseille", "Lille", "Rennes", "Nice", "Lens",
-                "Toulouse", "Montpellier", "Strasbourg", "Nantes", "Clermont Foot", "Lorient", "Brest", "Reims",
-                "Metz", "Le Havre"
-            ],
-            "la-liga": [
-                "Real Madrid", "FC Barcelona", "Atletico Madrid", "Real Sociedad", "Real Betis", "Villarreal",
-                "Girona", "Sevilla", "Valencia", "Athletic Bilbao", "Osasuna", "Rayo Vallecano", "Almeria",
-                "Getafe", "Celta Vigo", "Mallorca", "Granada", "Las Palmas"
-            ]
+            "premier-league": ["Manchester City", "Arsenal", "Liverpool", "Aston Villa", "Chelsea", "Tottenham Hotspur", "Manchester United", "Newcastle United", "West Ham United", "Brighton & Hove Albion", "Brentford", "Crystal Palace", "Wolverhampton Wanderers", "Fulham", "AFC Bournemouth", "Nottingham Forest", "Sheffield United", "Luton Town"],
+            "bundesliga": ["Bayern Munchen", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "VfB Stuttgart", "Eintracht Frankfurt", "Union Berlin", "Wolfsburg", "Borussia Monchengladbach", "Werder Bremen", "Mainz 05", "Augsburg", "Hoffenheim", "Koln", "Bochum", "Darmstadt 98"],
+            "superliga-romania": ["CFR Cluj", "FCSB", "Universitatea Craiova", "Sepsi Sfântu Gheorghe", "Rapid București", "Farul Constanța", "Petrolul Ploiești", "UTA Arad", "FC Botoșani", "Hermannstadt", "Gloria Buzau", "Universitatea Cluj", "Unirea Slobozia", "Dinamo București", "Oțelul Galați", "Politehnica Iași"],
+            "serie-a": ["Inter Milano", "AC Milan", "Juventus", "Napoli", "AS Roma", "Lazio", "Atalanta", "Fiorentina", "Bologna", "Torino", "Monza", "Empoli", "Lecce", "Salernitana", "Verona", "Spezia", "Sampdoria"],
+            "ligue-1": ["Paris Saint-Germain", "AS Monaco", "Lyon", "Marseille", "Lille", "Rennes", "Nice", "Lens", "Toulouse", "Montpellier", "Strasbourg", "Nantes", "Clermont Foot", "Lorient", "Brest", "Reims", "Metz", "Le Havre"],
+            "la-liga": ["Real Madrid", "FC Barcelona", "Atletico Madrid", "Real Sociedad", "Real Betis", "Villarreal", "Girona", "Sevilla", "Valencia", "Athletic Bilbao", "Osasuna", "Rayo Vallecano", "Almeria", "Getafe", "Celta Vigo", "Mallorca", "Granada", "Las Palmas"]
         };
 
-        // Predictii posibile
         const predictions = ["1", "X", "2", "PSF1", "PSF2", "PSFX", "GG", "GGand3+", "GGor3+", "2+ goals"];
 
-        // Functie pentru a genera o predicție aleatorie
         function generatePrediction() {
-            const randomIndex = Math.floor(Math.random() * predictions.length);
-            return predictions[randomIndex];
+            return predictions[Math.floor(Math.random() * predictions.length)];
         }
 
-        // La schimbarea ligii, actualizam echipele disponibile
+        function savePredictionToHistory(prediction) {
+            const historyKey = "predictionHistory";
+            let history = JSON.parse(localStorage.getItem(historyKey)) || [];
+
+            if (history.length >= 5) {
+                history.shift();
+            }
+
+            history.push(prediction);
+            localStorage.setItem(historyKey, JSON.stringify(history));
+        }
+
+        function displayHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            const history = JSON.parse(localStorage.getItem("predictionHistory")) || [];
+
+            if (history.length === 0) {
+                historyList.innerHTML = "<li>Nu există predicții în istoric.</li>";
+            } else {
+                history.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    historyList.appendChild(li);
+                });
+            }
+        }
+
         document.getElementById('league').addEventListener('change', function() {
             const league = this.value;
             const team1Select = document.getElementById('team1');
@@ -115,33 +120,37 @@
             }
         });
 
-        // La trimiterea formularului, generăm și salvăm predicția
         document.getElementById('matchForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const team1 = document.getElementById('team1').value;
             const team2 = document.getElementById('team2').value;
 
             if (team1 && team2 && team1 !== team2) {
-                // Cheia pentru stocarea predicției în localStorage
                 const predictionKey = `${team1}-${team2}`;
-
-                // Verificăm dacă există deja o predicție salvată pentru aceste echipe
                 let prediction = localStorage.getItem(predictionKey);
 
                 if (!prediction) {
-                    // Dacă nu există predicție salvată, generăm una și o salvăm
                     prediction = generatePrediction();
                     localStorage.setItem(predictionKey, prediction);
                 }
 
-                // Afișăm predicția
                 document.getElementById('predictionResult').textContent = 
                     `Predicție: ${team1} vs ${team2} - ${prediction}`;
+
+                savePredictionToHistory(`${team1} vs ${team2}: ${prediction}`);
+                displayHistory();
             } else {
                 document.getElementById('predictionResult').textContent = 
                     "Selectați echipe diferite!";
             }
         });
+
+        document.getElementById('clearHistory').addEventListener('click', function() {
+            localStorage.removeItem("predictionHistory");
+            displayHistory();
+        });
+
+        displayHistory();
     </script>
 </body>
 </html>
