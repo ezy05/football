@@ -1,12 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bets</title>
+    <link rel="stylesheet" href="style.css">
+    <title>Bets History</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(51, 51, 51, 0.9); /* Fundal transparent */
+            z-index: 1000; /* Header-ul va fi deasupra altor elemente */
+        }
+
+        header nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        header nav ul li {
+            margin: 0 15px;
+        }
+
+        header nav ul li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            display: block;
+        }
+
+        header nav ul li a.active, header nav ul li a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .poza {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            z-index: 10; /* Containerul este deasupra imaginii */
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .history ul {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .history ul li {
+            background-color: #f9f9f9;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #clearHistory {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #clearHistory:hover {
+            background-color: #ffc107; /* Galben */
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    <h1>WORKING ON...</h1>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="bets.html" class="active">Bets</a></li>
+            </ul>
+        </nav>
+    </header>
+    <img src="main.jpg" alt="poza" class="poza">
+    <div class="container">
+        <h1>Istoric Predicții</h1>
+        <div class="history">
+            <ul id="historyList"></ul>
+            <button id="clearHistory">Șterge Istoricul</button>
+        </div>
+    </div>
+
+    <script>
+        // Afișează istoricul predicțiilor
+        function displayHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            const history = JSON.parse(localStorage.getItem("predictionHistory")) || [];
+
+            if (history.length === 0) {
+                historyList.innerHTML = "<li>Nu există predicții în istoric.</li>";
+            } else {
+                history.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    historyList.appendChild(li);
+                });
+            }
+        }
+
+        // Șterge istoricul predicțiilor
+        document.getElementById('clearHistory').addEventListener('click', function() {
+            localStorage.removeItem("predictionHistory");
+            displayHistory();
+        });
+
+        // Afișăm istoricul la încărcarea paginii
+        displayHistory();
+    </script>
 </body>
 </html>
